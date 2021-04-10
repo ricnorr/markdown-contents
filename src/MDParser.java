@@ -6,24 +6,25 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class Parser {
+public class MDParser {
     public static void main(String[] args) {
         try {
-            Path path = validateArgs(args);
-            printContents(path);
+            MDParser parser = new MDParser();
+            Path path = parser.validateArgs(args);
+            parser.printContents(path);
             System.out.println();
-            writeFileInOutput(path);
+            parser.writeFileInOutput(path);
         } catch (ParserException e) {
             System.err.println("Exception while generating table of contents: " + e.getMessage());
         }
     }
 
-    private static String prepareTitle(String title) {
+    private String prepareTitle(String title) {
         return "(#" + title.toLowerCase().replaceAll("\\s+", "-") + ")";
     }
 
 
-    private static void writeFileInOutput(Path filePath) throws ParserException {
+    private void writeFileInOutput(Path filePath) throws ParserException {
         try (BufferedReader bufferedReader = Files.newBufferedReader(filePath)) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -34,7 +35,7 @@ public class Parser {
         }
     }
 
-    private static Path validateArgs(String[] args) throws ParserException {
+    private Path validateArgs(String[] args) throws ParserException {
         if (args == null || args.length != 1 || args[0] == null) {
             throw new ParserException("Illegal arguments format. Should be <filename>");
         }
@@ -45,7 +46,7 @@ public class Parser {
         }
     }
 
-    private static int getLevelForLine(String line) {
+    private int getLevelForLine(String line) {
         int i = 0;
         while (i < line.length() && line.charAt(i) == '#') {
             i++;
@@ -57,7 +58,7 @@ public class Parser {
         return i < line.length() && level != i ? level : 0;
     }
 
-    private static void printContents(Path path) throws ParserException {
+    private void printContents(Path path) throws ParserException {
         Deque<Integer> levelStack = new ArrayDeque<>();
         Deque<Integer> titlesOnLevelStack = new ArrayDeque<>();
         int previousLevel = 0;
@@ -93,7 +94,7 @@ public class Parser {
                 previousLevel = currentLevel;
             }
         } catch (IOException e) {
-            throw new ParserException("IO problem happened while reading : " + e.getMessage(), e);
+            throw new ParserException("IO problem happened while reading \"" + e.getMessage() + "\"", e);
         }
     }
 }
