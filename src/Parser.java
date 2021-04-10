@@ -30,12 +30,12 @@ public class Parser {
                 System.out.println(line);
             }
         } catch (IOException e) {
-            throw new ParserException("Can't read file <" + filePath + ">", e);
+            throw new ParserException("IO problem while reading " + filePath, e);
         }
     }
 
     private static Path validateArgs(String[] args) throws ParserException {
-        if (args.length != 1 || args[0] == null) {
+        if (args == null || args.length != 1 || args[0] == null) {
             throw new ParserException("Illegal arguments format. Should be <filename>");
         }
         try {
@@ -76,11 +76,11 @@ public class Parser {
                     titlesOnLevelStack.add(titlesOnLevelStack.removeLast() + 1);
                 }
                 if (currentLevel < previousLevel) {
-                    while (!levelStack.isEmpty() && levelStack.peekLast() != currentLevel) {
+                    while (!levelStack.isEmpty() && levelStack.peekLast() > currentLevel) {
                         titlesOnLevelStack.removeLast();
                         levelStack.removeLast();
                     }
-                    if (levelStack.isEmpty()) {
+                    if (levelStack.isEmpty() || levelStack.peekLast() != currentLevel) {
                         levelStack.add(currentLevel);
                         titlesOnLevelStack.add(1);
                     } else {
@@ -93,7 +93,7 @@ public class Parser {
                 previousLevel = currentLevel;
             }
         } catch (IOException e) {
-            throw new ParserException("Exception while reading <" + path + ">", e);
+            throw new ParserException("IO problem happened while reading : " + e.getMessage(), e);
         }
     }
 }
